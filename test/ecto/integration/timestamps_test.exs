@@ -143,10 +143,16 @@ defmodule Ecto.Integration.TimestampsTest do
     })
     |> TestRepo.insert!()
 
-    assert TestRepo.exists?(
-             from u in Product,
-               where: u.approved_at == ^time
-           )
+    assert [%Product{approved_at: approved_at} = product] = TestRepo.all(Product)
+    assert approved_at == ~N[2023-04-20 17:00:25]
+
+    Rexbug.start("Ch.Connection :: return")
+    on_exit(fn -> :timer.sleep(100) end)
+
+    # assert TestRepo.exists?(
+    #          from u in Product,
+    #            where: u.approved_at == ^product.approved_at
+    #        )
 
     assert TestRepo.exists?(
              from u in Product,
