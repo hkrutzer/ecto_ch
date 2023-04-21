@@ -126,4 +126,37 @@ defmodule Ecto.Integration.TimestampsTest do
              |> order_by([p], desc: p.approved_at)
              |> TestRepo.all()
   end
+
+  test "filtering with UTC datetimes" do
+    time = ~U[2023-04-20 17:00:25Z]
+
+    account =
+      %Account{}
+      |> Account.changeset(%{name: "Test"})
+      |> TestRepo.insert!()
+
+    %Product{}
+    |> Product.changeset(%{
+      account_id: account.id,
+      name: "Qux1",
+      approved_at: time
+    })
+    |> TestRepo.insert!()
+
+    assert TestRepo.exists?(
+             from u in Product,
+               where: u.approved_at == ^time
+           )
+
+    assert TestRepo.exists?(
+             from u in Product,
+               where: fragment("? = ?", u.approved_at, ^time)
+           )
+
+    # `refute` because `DateTime` is stored as seconds, for milliseconds precision use `DateTime64(3)`
+    refute TestRepo.exists?(
+             from u in Product,
+               where: fragment("? = ?", u.approved_at, ^DateTime.to_unix(time, :millisecond))
+           )
+  end
 end
