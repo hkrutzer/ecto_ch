@@ -85,6 +85,23 @@ types = [
 MyApp.Repo.insert_all("example", rows, types: types)
 ```
 
+#### FINAL table modifier
+
+To apply the FINAL modifier, you can use a hint:
+
+```elixir
+MyApp.Example
+|> from(hints: "FINAL")
+|> MyApp.Repo.all()
+```
+
+or apply a setting to your query:
+
+```elixir
+MyApp.Example
+|> MyApp.Repo.all(settings: [final: 1])
+```
+
 #### Settings
 
 `:settings` option can be used to enable [asynchronous inserts,](https://clickhouse.com/docs/en/optimize/asynchronous-inserts) lightweght [deletes,](https://clickhouse.com/docs/en/guides/developer/lightweght-delete) and [more:](https://clickhouse.com/docs/en/operations/settings/settings)
